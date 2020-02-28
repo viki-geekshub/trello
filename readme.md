@@ -1,9 +1,9 @@
 ## TRELLO JS
 
 ### REQUISITOS MÍNIMOS 📋
- [ x ] Añadir Columnas al board
+ [ X ] Añadir Columnas al board
 
- [ x ] Añadir tareas a las columnas
+ [ X ] Añadir tareas a las columnas
 
  [ ] Añadir persistencia en el localStorage
 
