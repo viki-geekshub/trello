@@ -1,43 +1,58 @@
-*{
+* {
     margin: 0;
     padding: 0;
     font-family: Arial, Helvetica, sans-serif;
 }
 
-input.addColumn{
-    all:unset;
+[draggable] {
+    user-select: none;
+    -webkit-user-drag: element;
+}
+
+input.addColumn {
+    all: unset;
     padding: 0.5em;
     margin: 0.5em;
     border: solid black 1px;
     border-radius: 0.4em;
     background-color: rgb(243, 255, 255);
 }
-.column input{
-    all:unset; 
+
+.column input {
+    all: unset;
     background-color: rgb(243, 255, 255);
-    border: solid rgba(0, 0, 0, 0.267) 1px;
     border-top: unset;
     padding: 0.5em;
     border-radius: 0 0 0.4em 0.4em;
 }
-::placeholder{
+
+::placeholder {
     color: black;
 }
-main{
+
+main {
     display: flex;
     padding: 0.5em;
 }
-.column{
+
+.column {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
     margin: 0.3em;
     min-height: 50vh;
+    border: solid rgba(0, 0, 0, 0.322) 1px;
     border-radius: 0.5em;
     background-color: rgb(218, 255, 255);
+    transition: 0.5s;
+}
+
+.column:hover {
+    box-shadow: 10px 12px 20px -13px rgba(0, 0, 0, 0.75);
 
 }
+
 .column h2 {
     background-color: rgb(166, 255, 255);
     width: 100%;
@@ -46,14 +61,15 @@ main{
     padding: 0.4em 0;
 }
 
-.tasks{
-    flex:1;
-    width:100%;
+.tasks {
+    flex: 1;
+    width: 100%;
 }
-.task{
+
+.task {
     padding: 0.3em;
-    border:solid rgba(0, 0, 0, 0.322) 1px;
+    border: solid rgba(0, 0, 0, 0.322) 1px;
     border-radius: 0.3em;
-    margin:0.2em;
+    margin: 0.2em;
     cursor: pointer;
 }
