@@ -1,4 +1,4 @@
-## TRELLO JS
+# TRELLO JS
 
 ### REQUISITOS MÍNIMOS 📋
 - [x] Añadir Columnas al board

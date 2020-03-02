@@ -1,6 +1,17 @@
 const drag = (event, taskId) => {
     event.dataTransfer.setData("id", taskId);
 }
+const columns = localStorage.getItem('columns') ?
+            JSON.parse(localStorage.getItem('columns')) : [];
+columns.forEach(column => {
+    document.querySelector('main').innerHTML += ` <div class="column" 
+        id="${column.id}">
+                    <h2>${column.title}</h2>
+                    <div class="tasks" ondragover="preventDefault(event)"  ondrop="drop(event)">
+                    </div>
+                    <input type="text" onkeyup="addTask(event,${column.id})">
+                    </div>`
+});    
 const addTask = (event, columnId) => {
     if (event.key === 'Enter') {
         const taskId = Date.now();
