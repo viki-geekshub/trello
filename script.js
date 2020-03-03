@@ -11,13 +11,20 @@ columns.forEach(column => {
                     </div>
                     <input type="text" onkeyup="addTask(event,${column.id})">
                     </div>`
-});    
+});
+const removeTask = (taskId) =>{
+    document.getElementById(taskId).remove();
+}
+// const removeTask = (event) =>{
+//     event.target.parentElement
+// }
 const addTask = (event, columnId) => {
     if (event.key === 'Enter') {
         const taskId = Date.now();
         document.getElementById(columnId).children[1].innerHTML += `
         <div class="task" id="${taskId}" draggable ondragstart ="drag(event,${taskId})" >
             <h5>${event.target.value}</h5>
+            <i class="far fa-trash-alt" onclick="removeTask(${taskId})"></i>
         </div>`
 
         const columns = localStorage.getItem('columns') ?
