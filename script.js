@@ -25,20 +25,20 @@ columns.forEach(column => {
                     </div>`
 
 });
-
+const removeTaskFromLocalStorage = (taskId, columnId) => {
+    const columns = getLocalStorageColumns();
+    const currentColumn = columns.find(column => column.id == columnId);
+    const tasksFiltered = currentColumn.tasks.filter(task => task.id !== taskId);
+    currentColumn.tasks = tasksFiltered;
+    localStorage.setItem('columns', JSON.stringify(columns));
+}
 const removeTask = (taskId) => {
     const currentColumnId = document.getElementById(taskId).parentElement.parentElement.id;
-    const columns = getLocalStorageColumns();
-    const currentColumn =columns.find(column => column.id == currentColumnId);
-    const tasksFiltered =currentColumn.tasks.filter(task => task.id !== taskId);
+    removeTaskFromLocalStorage(taskId, currentColumnId)
     document.getElementById(taskId).remove();
-    currentColumn.tasks =tasksFiltered;
-    localStorage.setItem('columns', JSON.stringify(columns));
     // agregar que tambien se borren del local storage
 }
-// const removeTask = (event) =>{
-//     event.target.parentElement
-// }
+
 const addTask = (event, columnId) => {
     if (event.key === 'Enter') {
         const taskId = Date.now();
