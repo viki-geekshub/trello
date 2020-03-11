@@ -1,14 +1,59 @@
-const drag = (event, taskId) => {
-    event.dataTransfer.setData("id", taskId);
+//***************  FUNCION DRAGCOLUMN (para que se pueda arrastrar) **************/ 
+const dragColumn = (event, columnId) => { 
+    event.dataTransfer.setData("id", columnId); 
 }
+
+//***************  FUNCION DROPCOLUMN (para que se pueda soltar) **************/ 
+const dropColumn = event => {
+    const columnId = event.dataTransfer.getData("id"); 
+    const column = document.getElementById(columnId);
+    if (event.target.classList.contains('main')) { 
+        event.target.appendChild(column) 
+    }
+}
+
+//***************  preventDefault **************/ 
+const preventDefault = event => event.preventDefault();
+
+//***************  FUNCION DRAG (para que se pueda arrastrar) **************/ 
+const drag = (event, taskId) => { 
+    event.dataTransfer.setData("id", taskId); 
+}
+
+//***************  FUNCION DROP (para que se pueda soltar) **************/ 
+const drop = event => {
+    const taskId = event.dataTransfer.getData("id"); 
+    const task = document.getElementById(taskId);
+    if (event.target.classList.contains('tasks')) { 
+        event.target.appendChild(task) 
+    }
+}
+//*************** HACER EL TITULO DE LA COLUMNA EDITABLE ***************/
+const changeTitleLocalStorage = (title, columnId) => {
+    const columns = getLocalStorageColumns();
+    const currentColumn = columns.find(column => columnId === column.id);
+    currentColumn.title = title;
+    localStorage.setItem('columns', JSON.stringify(columns));
+}
+const changeColumnTitleBlur = (event, columnId) => {
+    changeTitleLocalStorage(event.target.innerText, columnId)
+}
+const changeColumnTitleEnter = (event, columnId) => {
+    if (event.key === 'Enter') {
+        changeTitleLocalStorage(event.target.value, columnId);
+        event.target.blur();
+    }
+}
+//************************ preventEnter **************************/
+const preventEnter = event => event.key === 'Enter' ? event.preventDefault() : '';
+
+
+//**  Sacar la información que haya en el localStorage y mostrarla en el documento al cargar la página **************/
 const getLocalStorageColumns = () => localStorage.getItem('columns') ?
     JSON.parse(localStorage.getItem('columns')) : [];
-//aquí leemos el localStorage por si hay columnas previas, en caso de no haber se convierte en null, y la variable columns para a ser array vacia [].
 const columns = getLocalStorageColumns();
-//renderizamos en el DOM columnas de haberlas en el localStorage.
 columns.forEach(column => {
     let tasks = ``
-    //iteramos a través de las tareas para ir concatenando los divs task por cada una de las tareas existentes en la columna
     column.tasks.forEach(task => {
         tasks += `<div class="task" id="${task.id}" draggable ondragstart ="drag(event,${task.id})" >
         <h5>${task.title}</h5>
@@ -16,78 +61,92 @@ columns.forEach(column => {
     </div>`
     })
     document.querySelector('main').innerHTML += `<div class="column" 
-        id="${column.id}">
-                    <h2>${column.title}</h2>
+        id="${column.id}" draggable ondragstart ="dragColumn(event,${column.id})"> 
+        <div class="papelera" id="${column.id}">
+        <h2 contentEditable onkeydown="preventEnter(event)" onkeyup="changeColumnTitleEnter(event,${column.id})" onBlur="changeColumnTitleBlur(event,${column.id})">${column.title}</h2>
+        <i class="far fa-trash-alt" onclick="removeColumn(${column.id})"></i>
+    </div>
                     <div class="tasks" ondragover="preventDefault(event)"  ondrop="drop(event)">
                     ${tasks}
                     </div>
                     <input type="text" onkeyup="addTask(event,${column.id})">
                     </div>`
+}); 
 
-});
-const removeTaskFromLocalStorage = (taskId, columnId) => {
-    const columns = getLocalStorageColumns();
-    const currentColumn = columns.find(column => column.id == columnId);
+//***************  Borrar tareas del localStorage  **************/
+const removeTaskFromLocalStorage = (taskId, columnId) => { 
+    const columns = getLocalStorageColumns(); 
+    const currentColumn = columns.find(column => column.id == columnId); 
     const tasksFiltered = currentColumn.tasks.filter(task => task.id !== taskId);
-    currentColumn.tasks = tasksFiltered;
-    localStorage.setItem('columns', JSON.stringify(columns));
-}
-const removeTask = (taskId) => {
-    const currentColumnId = document.getElementById(taskId).parentElement.parentElement.id;
-    removeTaskFromLocalStorage(taskId, currentColumnId)
-    document.getElementById(taskId).remove();
-    // agregar que tambien se borren del local storage
+    currentColumn.tasks = tasksFiltered; 
+    localStorage.setItem('columns', JSON.stringify(columns)); 
 }
 
-const addTask = (event, columnId) => {
-    if (event.key === 'Enter') {
-        const taskId = Date.now();
-        document.getElementById(columnId).children[1].innerHTML += `
+//******  Borrar las tareas en el documento con el botón de borrar (que hemos añadido como icono) **************/
+const removeTask = (taskId) => { 
+    const currentColumnId = document.getElementById(taskId).parentElement.parentElement.id; 
+    removeTaskFromLocalStorage(taskId, currentColumnId) 
+    document.getElementById(taskId).remove(); 
+}
+
+//***************  Borrar columnas del localStorage  **************/
+
+const removeColumnFromLocalStorage = (columnId) => { 
+    const columns = getLocalStorageColumns(); 
+    const currentColumn = columns.find(column => column.id == columnId);
+    const columnsFiltered = columns.filter(column => column.id !== currentColumn.id);
+    localStorage.setItem('columns', JSON.stringify(columnsFiltered)); 
+}
+
+//******  Borrar las columnas en el documento con el botón de borrar (que hemos añadido como icono) **************/
+
+const removeColumn = (columnId) => { 
+    removeColumnFromLocalStorage(columnId)
+    document.getElementById(columnId).remove(); 
+}
+
+//***************  Añadir tareas nuevas **************/
+const addTask = (event, columnId) => { 
+    if (event.key === 'Enter') { 
+        const taskId = Date.now(); 
+        document.getElementById(columnId).children[1].innerHTML += ` 
         <div class="task" id="${taskId}" draggable ondragstart ="drag(event,${taskId})" >
             <h5>${event.target.value}</h5>
             <i class="far fa-trash-alt" onclick="removeTask(${taskId})"></i>
         </div>`
-
-        const columns = getLocalStorageColumns();
-        //buscamos la columna en la cual se este creando la tarea
-        const currentColumn = columns.find(column => column.id === columnId);
-        //añadimos la tarea al array tasks de la columna en la que estamos
-        currentColumn.tasks.push({
+        const columns = getLocalStorageColumns(); 
+        const currentColumn = columns.find(column => column.id === columnId); 
+        
+        currentColumn.tasks.push({ 
             id: taskId,
             title: event.target.value
         });
-        //sobreescribo todas las columnas porque las strings en JS son inmutables
         localStorage.setItem('columns', JSON.stringify(columns));
-        event.target.value = '';
+        event.target.value = ''; 
     }
 }
-const preventDefault = event => event.preventDefault();
-const drop = event => {
-    const taskId = event.dataTransfer.getData("id");
-    const task = document.getElementById(taskId);
-    if (event.target.classList.contains('tasks')) {
-        event.target.appendChild(task)
-    }
-}
-document.querySelector('.addColumn').onkeyup = event => {
-    if (event.key === "Enter") {
-        const columnId = Date.now();
-        const title = event.target.value
+//***************  Añadir columnas nuevas ***************/
+document.querySelector('.addColumn').onkeyup = event => { 
+    if (event.key === "Enter") { 
+        const columnId = Date.now(); 
+        const title = event.target.value 
         document.querySelector('main').innerHTML += ` <div class="column" 
-        id="${columnId}">
-                    <h2>${title}</h2>
-                    <div class="tasks" ondragover="preventDefault(event)"  ondrop="drop(event)">
-                    </div>
-                    <input type="text" onkeyup="addTask(event,${columnId})">
-                    </div>`
-        const columns = getLocalStorageColumns();
-        columns.push({
+        id="${columnId}" draggable ondragstart ="dragColumn(event,${columnId})">
+                <div class="papelera" id="${columnId}">
+                    <h2 contentEditable onkeydown="preventEnter(event)" onkeyup="changeColumnTitleEnter(event,${columnId})" onBlur="changeColumnTitleBlur(event,${columnId})">${title}</h2>
+                    <i class="far fa-trash-alt" onclick="removeColumn(${columnId})"></i>
+                </div>
+                <div class="tasks" ondragover="preventDefault(event)"  ondrop="drop(event)">
+                </div>
+                <input type="text" onkeyup="addTask(event,${columnId})">
+            </div>`
+        const columns = getLocalStorageColumns(); 
+        columns.push({ 
             id: columnId,
             title,
             tasks: []
         })
         localStorage.setItem('columns', JSON.stringify(columns))
-        event.target.value = '';
+        event.target.value = ''; 
     }
 }
-// document.querySelector('.addColumn').addEventListener('keyup', event => {})
