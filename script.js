@@ -1,14 +1,65 @@
-//***************  FUNCION DRAGCOLUMN (para que se pueda arrastrar) **************/ 
-const dragColumn = (event, columnId) => { 
-    event.dataTransfer.setData("id", columnId); 
-}
+// //***************  FUNCION DRAGCOLUMN (para que se pueda arrastrar) **************/ 
+// const dragColumn = (event, columnId) => { 
+//     event.dataTransfer.setData("id", columnId); 
+// }
 
-//***************  FUNCION DROPCOLUMN (para que se pueda soltar) **************/ 
-const dropColumn = event => {
-    const columnId = event.dataTransfer.getData("id"); 
-    const column = document.getElementById(columnId);
-    if (event.target.classList.contains('main')) { 
-        event.target.appendChild(column) 
+// //***************  FUNCION DROPCOLUMN (para que se pueda soltar) **************/ 
+// const dropColumn = event => {
+//     const columnId = event.dataTransfer.getData("id"); 
+//     const column = document.getElementById(columnId);
+//     if (event.target.classList.contains('main')) { 
+//         event.target.appendChild(column) 
+//     }
+// }
+
+//  Localstorage 
+const renderColumns = (columns) => {
+    document.querySelector('main').innerHTML = '';
+    columns.forEach(column => {
+        if(!column) return;
+        let tasks = ``
+        //iteramos a través de las tareas para ir concatenando los divs task por cada una de las tareas existentes en la columna
+        column.tasks.forEach(task => {
+            tasks += `<div class="task" id="${task.id}" draggable ondragstart ="drag(event,${task.id})" >
+            <h5>${task.title}</h5>
+            <i class="far fa-trash-alt" onclick="removeTask(${task.id})"></i>
+        </div>`
+        })
+        document.querySelector('main').innerHTML += `<div class="column" 
+            id="${column.id}" draggable='true' ondragstart='dragColumn(event);'>
+                    <div class="papelera">
+                        <h2 contentEditable onkeydown="preventEnter(event)" onkeyup="changeColumnTitleEnter(event,${column.id})" onBlur="changeColumnTitleBlur(event,${column.id})">${column.title}</h2>
+                        <i class="far fa-trash-alt" onclick="removeColumn(${column.id})"></i>
+                    </div>
+                        <div class="tasks" ondragover="preventDefault(event)"  ondrop="drop(event)">
+                        ${tasks}
+                        </div>
+                        <input type="text" onkeyup="addTask(event,${column.id})">
+                        </div>`
+    });
+    Array.from(document.getElementsByClassName("column")).forEach(restoreOpacity)
+    Array.from(document.getElementsByClassName("task")).forEach(restoreOpacity)
+    return columns
+}
+// //***************  FUNCION DRAGCOLUMN (para que se pueda arrastrar) **************/
+const dragColumn = (event) => {
+    event.dataTransfer.setData('number', event.target.id);
+    
+    //event.target.style.transform = "rotate(20deg)";
+}
+// //***************  FUNCION DROPCOLUMN (para que se pueda soltar) **************/ 
+const dropColumn = (evento) => {
+    
+    if (event.target.classList.contains("main")) {
+        const id = event.dataTransfer.getData('number', event.target.id);
+        const draggableElement = document.getElementById(id);
+        const position = Math.floor(evento.pageX / 226.8); //determinamos la posición final de la columna a mover diviendo por el tamañao + el margin
+        const columns = getLocalStorageColumns(); //obtenemos las columnas del localStorage
+        const currentColumn = columns.find(column => column.id === +id); //buscamos la columna que estamos moviendo
+        const updatedColumns = columns.filter(column => column.id !== +id); //quitamos la columna a mover
+        updatedColumns.splice(position, 0, currentColumn); //insertamos la columna movida en la posición donde cae
+        localStorage.setItem('columns', JSON.stringify(updatedColumns)); //guardamos cambios en localStorage
+        renderColumns(updatedColumns); //actualizamos el DOM
     }
 }
 
