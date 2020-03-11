@@ -12,6 +12,7 @@
 //     }
 // }
 
+
 //  Localstorage 
 const renderColumns = (columns) => {
     document.querySelector('main').innerHTML = '';
@@ -158,7 +159,7 @@ const removeColumn = (columnId) => {
 
 //***************  Añadir tareas nuevas **************/
 const addTask = (event, columnId) => { 
-    if (event.key === 'Enter') { 
+    if (event.key === 'Enter' && event.target.value !== '') { 
         const taskId = Date.now(); 
         document.getElementById(columnId).children[1].innerHTML += ` 
         <div class="task" id="${taskId}" draggable ondragstart ="drag(event,${taskId})" >
@@ -178,7 +179,7 @@ const addTask = (event, columnId) => {
 }
 //***************  Añadir columnas nuevas ***************/
 document.querySelector('.addColumn').onkeyup = event => { 
-    if (event.key === "Enter") { 
+    if (event.key === "Enter" && event.target.value !== '') { 
         const columnId = Date.now(); 
         const title = event.target.value 
         document.querySelector('main').innerHTML += ` <div class="column" 
@@ -189,7 +190,7 @@ document.querySelector('.addColumn').onkeyup = event => {
                 </div>
                 <div class="tasks" ondragover="preventDefault(event)"  ondrop="drop(event)">
                 </div>
-                <input type="text" onkeyup="addTask(event,${columnId})">
+                <input type="text" id="prueba" placeholder="Añadir tarea" onkeyup="addTask(event,${columnId})">
             </div>`
         const columns = getLocalStorageColumns(); 
         columns.push({ 
