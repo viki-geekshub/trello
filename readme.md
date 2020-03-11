@@ -5,15 +5,15 @@
 
 - [x] Añadir tareas a las columnas
 
-- [ ] Añadir persistencia en el localStorage
+- [x] Añadir persistencia en el localStorage
 
-- [ ] Botón eliminar tarea
+- [x] Botón eliminar tarea
 
-- [ ] Botón eliminar columna
+- [x] Botón eliminar columna
 
  ### NICE TO HAVE
  
-- [ ] Poder editar titulo de la columna
+- [x] Poder editar titulo de la columna
 
 - [ ] Poder editar titulo tarea
 
